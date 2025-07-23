@@ -18,6 +18,8 @@ exports.signup_post = [
   body('lastName').trim().notEmpty().withMessage('Last name is required.').isAlpha().withMessage('Last name must contain only letters.'),
   body('username').trim().notEmpty().withMessage('Username is required.').isAlphanumeric().withMessage('Username must be alphanumeric.'),
   body('password').notEmpty().withMessage('Password is required.').isLength({ min: 6 }).withMessage('Password must be at least 6 characters.'),
+  body('confirmPassword').notEmpty().withMessage('Confirm password is required.')
+    .custom((value, { req }) => value === req.body.password).withMessage('Passwords do not match.'),
   body('adminPasscode').optional().trim().escape(),
 
   async (req, res) => {
