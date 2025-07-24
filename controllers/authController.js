@@ -57,6 +57,10 @@ exports.join_post = [
     }
     const username = req.user.username;
 
+    // Prevent admin from becoming member
+    if (req.user.status === 'admin') {
+      return res.status(400).send({ errors: [{ msg: 'Admins already have all privileges and cannot become members.' }] });
+    }
     if (process.env.CLUB_PASSCODE && clubPasscode === process.env.CLUB_PASSCODE) {
       try {
         await pool.query(

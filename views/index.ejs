@@ -16,8 +16,9 @@
       <li>
         <strong><%= message.title %></strong><br>
         <%= message.text %><br>
-        <% if (user && user.status === 'member') { %>
+        <% if (user && (user.status === 'member' || user.status === 'admin')) { %>
           <small>by <%= message.username %> at <%= message.created_at.toLocaleString ? message.created_at.toLocaleString() : message.created_at %></small>
+        <% } %>
         <% } %>
       </li>
     <% }); %>
