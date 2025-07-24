@@ -1,0 +1,9 @@
+<h1>Join the Club</h1>
+<form method="POST" action="/join">
+  <label for="clubPasscode">Club Passcode:</label><br>
+  <input type="password" id="clubPasscode" name="clubPasscode" required><br><br>
+  <button type="submit">Join</button>
+</form>
+<% if (!user) { %>
+  <p style="color:red;">You must be logged in to join the club.</p>
+<% } %>

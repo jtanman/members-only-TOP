@@ -1,16 +1,78 @@
-// controllers/authController.js
-
-
 const { body, validationResult } = require('express-validator');
+const bcrypt = require('bcrypt');
+const pool = require('../db');
+require('dotenv').config();
 
+// Login GET
+exports.login_get = (req, res) => {
+  res.render('login');
+};
+
+// Login POST (with Passport)
+const passport = require('passport');
+exports.login_post = [
+  body('username').trim().notEmpty().withMessage('Username is required.'),
+  body('password').notEmpty().withMessage('Password is required.'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).send({ errors: errors.array() });
+    }
+    passport.authenticate('local', (err, user, info) => {
+      if (err) { return next(err); }
+      if (!user) {
+        return res.status(401).send({ errors: [{ msg: info && info.message ? info.message : 'Invalid username or password.' }] });
+      }
+      req.logIn(user, (err) => {
+        if (err) { return next(err); }
+        return res.send('Login successful!');
+      });
+    })(req, res, next);
+  }
+];
+
+// Join the club GET
+exports.join_get = (req, res) => {
+  res.render('join', { user: req.user });
+};
+
+// Signup GET
 exports.signup_get = (req, res) => {
   res.render('signup');
 };
 
+// Join the club POST
+exports.join_post = [
+  body('clubPasscode').notEmpty().withMessage('Club passcode is required.'),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).send({ errors: errors.array() });
+    }
 
-const bcrypt = require('bcrypt');
-const pool = require('../db');
-require('dotenv').config();
+    const { clubPasscode } = req.body;
+    // Use the logged-in user from the session
+    if (!req.user) {
+      return res.status(401).send({ errors: [{ msg: 'You must be logged in to join the club.' }] });
+    }
+    const username = req.user.username;
+
+    if (process.env.CLUB_PASSCODE && clubPasscode === process.env.CLUB_PASSCODE) {
+      try {
+        await pool.query(
+          `UPDATE users SET status = 'member' WHERE username = $1`,
+          [username]
+        );
+        res.send('Membership status updated to member!');
+      } catch (err) {
+        console.error(err);
+        res.status(500).send('Error updating membership status.');
+      }
+    } else {
+      res.status(401).send({ errors: [{ msg: 'Incorrect club passcode.' }] });
+    }
+  }
+];
 
 exports.signup_post = [
   // Validation and sanitization middleware
