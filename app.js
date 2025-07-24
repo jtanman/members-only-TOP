@@ -63,12 +63,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Basic route
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+  res.render('index', { user: req.user });
 });
+
 
 // Auth routes
 const authRoutes = require('./routes/auth');
 app.use('/', authRoutes);
+
+// Message routes
+const messageRoutes = require('./routes/message');
+app.use('/', messageRoutes);
 
 // Start the server
 app.listen(PORT, () => {
