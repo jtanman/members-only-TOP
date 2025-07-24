@@ -62,8 +62,19 @@ passport.deserializeUser(async (id, done) => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Basic route
-app.get('/', (req, res) => {
-  res.render('index', { user: req.user });
+app.get('/', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT m.id, m.title, m.text, m.created_at, u.username, u.status
+      FROM messages m
+      JOIN users u ON m.user_id = u.id
+      ORDER BY m.created_at DESC
+    `);
+    res.render('index', { user: req.user, messages: result.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error loading messages.');
+  }
 });
 
 
@@ -71,9 +82,14 @@ app.get('/', (req, res) => {
 const authRoutes = require('./routes/auth');
 app.use('/', authRoutes);
 
+
 // Message routes
 const messageRoutes = require('./routes/message');
 app.use('/', messageRoutes);
+
+// Logout route
+const logoutRoutes = require('./routes/logout');
+app.use('/', logoutRoutes);
 
 // Start the server
 app.listen(PORT, () => {
