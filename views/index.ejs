@@ -4,4 +4,24 @@
 <% } else { %>
   <h1>Welcome, <%= user.username %>!</h1>
   <a href="/message/new">Create a New Message</a>
+  <form method="POST" action="/logout" style="display:inline;">
+    <button type="submit">Logout</button>
+  </form>
 <% } %>
+
+<h2>Messages</h2>
+<ul>
+  <% if (messages && messages.length > 0) { %>
+    <% messages.forEach(function(message) { %>
+      <li>
+        <strong><%= message.title %></strong><br>
+        <%= message.text %><br>
+        <% if (user && user.status === 'member') { %>
+          <small>by <%= message.username %> at <%= message.created_at.toLocaleString ? message.created_at.toLocaleString() : message.created_at %></small>
+        <% } %>
+      </li>
+    <% }); %>
+  <% } else { %>
+    <li>No messages yet.</li>
+  <% } %>
+</ul>

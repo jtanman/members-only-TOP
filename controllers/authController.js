@@ -25,7 +25,7 @@ exports.login_post = [
       }
       req.logIn(user, (err) => {
         if (err) { return next(err); }
-        return res.send('Login successful!');
+        return res.redirect('/');
       });
     })(req, res, next);
   }
