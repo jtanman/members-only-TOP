@@ -91,6 +91,10 @@ app.use('/', messageRoutes);
 const logoutRoutes = require('./routes/logout');
 app.use('/', logoutRoutes);
 
+// Admin message routes
+const messageAdminRoutes = require('./routes/message_admin');
+app.use('/', messageAdminRoutes);
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
